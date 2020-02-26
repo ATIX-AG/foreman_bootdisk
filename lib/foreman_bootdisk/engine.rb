@@ -79,6 +79,7 @@ module ForemanBootdisk
         HostsHelper.prepend ForemanBootdisk::HostsHelperExt
         SubnetsHelper.prepend ForemanBootdisk::SubnetsHelperExt
         Foreman::Model::Vmware.prepend ForemanBootdisk::ComputeResources::Vmware if Foreman::Model::Vmware.available?
+        ForemanFogProxmox::Proxmox.prepend ForemanBootdisk::ComputeResources::Proxmox if ForemanBootdisk.with_proxmox?
       rescue StandardError => e
         Rails.logger.warn "#{ForemanBootdisk::ENGINE_NAME}: skipping engine hook (#{e})"
       end
@@ -87,5 +88,12 @@ module ForemanBootdisk
 
   def self.logger
     Foreman::Logging.logger('foreman_bootdisk')
+  end
+
+  def self.with_proxmox?
+    ForemanFogProxmox # rubocop:disable Lint/Void
+    true
+  rescue StandardError
+    false
   end
 end
