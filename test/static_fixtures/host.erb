@@ -29,6 +29,7 @@ end
 mask = subnet.mask
 gw = subnet.gateway
 dns = subnet.dns_servers.first
+vlan = interface.vlanid
 %>
 
 echo Foreman Bootdisk: Host image (<%= @host.name %>)
@@ -45,7 +46,13 @@ goto loop_success
 
 :loop_success
 echo Configuring net${idx} for static IP address <%= ip %>
+<% if vlan.present? -%>
+echo Creating VLAN interface with tag <%= vlan %>
+vcreate --tag <%= vlan %> net${idx}
+ifopen net${idx}-<%= vlan %>
+<% else -%>
 ifopen net${idx}
+<% end -%>
 # netX = last opened NIC
 set netX/ip <%= ip %>
 set netX/netmask <%= mask %>
